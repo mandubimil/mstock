@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<html>
+	<head>
+        <link rel="stylesheet" href="/static/webix/codebase/skins/webix.css" type="text/css" media="screen" charset="utf-8">
+        <script src="/static/webix/codebase/webix.js" type="text/javascript"  charset="utf-8"></script>
+
+        <style>@font-face{font-family: 'D2Coding';src: url(/static/D2Coding.woff) format('woff');}
+            body, table, div, p, h1, h2, h3, h4, h5, h6, pre {font-family:'D2Coding';}</style>
+    		
+        <script src="/view/common.js" type="text/javascript"  charset="utf-8"></script>
+        <script src="/view/ju1010.js" type="text/javascript"  charset="utf-8"></script>
+
+<body>
+<script>
+
+    webix.skin.compact.barHeight=28;webix.skin.compact.tabbarHeight=28;webix.skin.compact.rowHeight=22;webix.skin.compact.listItemHeight=28;webix.skin.compact.inputHeight=28;webix.skin.compact.layoutMargin.wide=2;webix.skin.compact.layoutMargin.space=5;webix.skin.compact.layoutPadding.space=3;
+    webix.skin.set('compact');    
+
+    webix.ready(function()
+    {   
+        webix.ui({view:"popup",	id:"pop_1", width:180,
+            body:{view:"list", id:"list_1", data:[ 
+                                            {id:"1", location:"조정입력"},
+                                            {id:"2", location:"일괄 조정입력"},
+                                            ],
+                datatype:"json", template:"#location#",	select:true, autoheight:true,
+            }
+        });
+
+        webix.ui({view:"popup",	id:"pop_2", width:180,
+            body:{view:"list", id:"list_2", data:[ 
+                                            {id:"1", location:"조정입력"},
+                                            {id:"2", location:"..."},
+                                            ],
+                datatype:"json", template:"#location#",	select:true, autoheight:true,
+            }
+        });
+
+        webix.ui({view:"window",id:"win_modify", head:"조정입력", move:true,
+            body:
+            {
+                type: "space",
+                rows:
+                [
+                    {
+                        cols:
+                        [
+                            { view:"datatable", id:"grid_modify",resizeColumn:true, select:true, width:1250,height:300,editable:true,
+                                columns:
+                                [
+                                    { id:"매매순번",	header:"매매순번", adjust:true},
+                                    { id:"단축코드",	header:"단축코드", adjust:true},
+                                    { id:"종목명",	header:"종목명", adjust:true},
+                                    { id:"매수일자",    header:"매수일자", adjust:true},
+                                    { id:"매수수량",    header:"매수수량", adjust:true, editor:"text"},
+                                    { id:"매수단가",    header:"매수단가", adjust:true, editor:"text"},
+                                    { id:"실매수수량",    header:"실매수수량", adjust:true, editor:"text"},
+                                    { id:"실매수단가",    header:"실매수단가", adjust:true, editor:"text"},
+                                    { id:"매수조건명",    header:"매수조건명", adjust:true},
+                                    { id:"매도일자",    header:"매도일자", adjust:true},
+                                    { id:"매도수량",      header:"매도수량",   adjust:true, editor:"text"},
+                                    { id:"매도단가",      header:"매도단가",   adjust:true, editor:"text"},
+                                    { id:"실매도수량",    header:"실매도수량", adjust:true, editor:"text"},
+                                    { id:"실매도단가",    header:"실매도단가", adjust:true, editor:"text"},
+                                ]
+                            },
+                            {width:10},
+                            {
+                                rows:
+                                [
+                                    {
+                                        cols:
+                                        [
+                                            {view:"label", label:" 매도조건", width:60 },
+                                            { view:"text", id: "text_medo_jo_name"},
+                                        ]
+                                    },                                    
+                                    { view:"textarea", id: "textarea_medo_jo_ne", height:300, width:250},
+                                ]                            
+                            },                            
+                            {width:10},
+                            {
+                                rows:
+                                [
+                                    {
+                                        cols:
+                                        [
+                                            {view:"label", label:" 매수조건", width:60 },
+                                            { view:"text", id: "text_mesu_jo_name"},
+                                        ]
+                                    },                                   
+                                    { view:"textarea", id: "textarea_mesu_jo_ne", height:300, width:250},
+                                ]                            
+                            },                            
+                        ]
+                    },
+                    {
+                        cols:
+                        [   
+                            { view:"button", value:"삭제", click:"del_meme()", width:60},
+                            { view:"button", value:"생성", click:"new_meme()", width:60},
+                            {},
+                            { view:"button", value:"다시읽기", click:"get_for_modify()", width:80},
+                            { view:"button", value:"저장", click:"update_meme()", width:60},
+                            { view:"button", value:"닫기", click:"$$('win_modify').hide();", width:60},
+                        ]
+                    }                    
+                ]
+            }
+        });        
+
+        var main_view =
+        {
+            type:"space",
+            cols:
+            [
+                {
+                    rows:
+                    [
+                        {
+                            view:"toolbar", elements:
+                            [
+                                { view:"button", value:"주식 서버 보유", width:150, click:"get_list_bo()"}
+                            ]
+                        },
+                        { view:"datatable", id:"grid_js", resizeColumn:true, math: true, select:true,
+                            columns:
+                            [
+                                { id:"단축코드",	header:"단축코드", adjust:true},
+                                { id:"종목명",	header:"종목명", adjust:true},
+                                { id:"잔고",	    header:"잔고", adjust:true},
+                                { id:"db",	    header:"db", adjust:true},
+                                { id:"차이",	    header:"차이", adjust:true},
+                                { id:"증감", header: "증감", adjust:true, math:"Math.round([$r,현재가] / [$r,평균단가] * 100)", sort:"int"}, 
+                                { id:"현재가",	header:"현재가", adjust:true,
+                                    format:webix.Number.numToStr({
+                                    groupDelimiter:",",
+                                    groupSize:3
+                                })},
+                                { id:"평균단가",	header:"평균단가", adjust:true,
+                                    format:webix.Number.numToStr({
+                                        groupDelimiter:",",
+                                        groupSize:3
+                                })},
+                            ]
+                        }
+                    ]
+                },
+                {
+                    rows:
+                    [
+                        {
+                            view:"toolbar", elements:
+                            [
+                                { view:"button", value:"DB 서버 보유",  width:150, click:"get_list_bo_db()"}
+                            ]
+                        },
+                        {view:"datatable", id:"grid_db", resizeColumn:true, autoConfig:true},
+                    ]
+                },
+                {
+                    rows:
+                    [
+                        {
+                            width:550,
+                            view:"toolbar", elements:
+                            [
+                                { view:"button", value:"DB 서버 매매", width:150, click:"get_list_meme()"},
+                                {view:"text", id: "meme_start", width:100},
+                                {view:"text", id: "meme_end", width:100},
+                                {},
+                                {view:"text", id: "text_jong_code", width:100},
+                            ]
+                        },
+                        {view:"datatable", id:"grid_meme", resizeColumn:true, autoConfig:true},
+                    ]
+                },
+
+                
+            ]
+        };
+        
+        webix.ui(
+        {
+            rows:
+            [
+                bar_top, 
+                main_view          
+            ]
+        });    
+
+        $$("grid_js").attachEvent("onItemClick", function(id, e, node)
+        {
+            var grid = $$("grid_js")
+            for (i=0 ; i<$$("grid_db").count() ; i++)
+            {
+                if (grid.getItem(id).단축코드 == $$("grid_db").getItem($$("grid_db").getIdByIndex(i)).단축코드)
+                {
+                    $$("grid_db").select($$("grid_db").getIdByIndex(i));
+                    break;
+                }
+            }
+        });  
+
+        $$("grid_db").attachEvent("onItemClick", function(id, e, node)
+        {
+            var grid = $$("grid_db")
+            for (i=0 ; i<$$("grid_js").count() ; i++)
+            {
+                if (grid.getItem(id).단축코드 == $$("grid_js").getItem($$("grid_js").getIdByIndex(i)).단축코드)
+                {
+                    $$("grid_js").select($$("grid_js").getIdByIndex(i));
+                    break;
+                }
+            }
+        });
+
+        $$("text_jong_code").attachEvent("onTimedKeyPress",function()
+        {
+            var value = this.getValue().toLowerCase();
+            $$("grid_meme").filter(function(obj){
+                return obj.단축코드.toLowerCase().indexOf(value)==0 || obj.종목명.toLowerCase().indexOf(value)==0;
+            });       
+        });        
+
+
+        $$("grid_js").attachEvent("onItemDblClick", function(id, e, node)
+        {
+            $$('pop_1').show(node, {pos:"right"});
+        });  
+
+        $$("grid_modify").attachEvent("onItemClick", function(id, e, node)
+        {
+            $$('text_medo_jo_name').setValue($$("grid_modify").getItem($$("grid_modify").getSelectedId()).매도조건명);
+            let temp_json = JSON.parse($$("grid_modify").getItem($$("grid_modify").getSelectedId()).매도조건내역);
+            $$('textarea_medo_jo_ne').setValue(JSON.stringify(temp_json, null, 2));
+
+            $$('text_mesu_jo_name').setValue($$("grid_modify").getItem($$("grid_modify").getSelectedId()).매수조건명);
+            let temp_json1 = JSON.parse($$("grid_modify").getItem($$("grid_modify").getSelectedId()).매수조건내역);
+            $$('textarea_mesu_jo_ne').setValue(JSON.stringify(temp_json1, null, 2));
+
+        });  
+
+        $$("list_1").attachEvent("onItemClick", function(id, e, node){
+            if (id === '1'){ new_mesu();}
+            else if (id === '2'){all_new_mesu();}
+            else if (id === '4'){insert_select_jong();}
+            else if (id === '5'){insert_all_jong();}
+        });
+
+        $$("grid_db").attachEvent("onItemDblClick", function(id, e, node)
+        {
+            $$('pop_2').show(node, {pos:"right"});
+        });  
+
+        $$("list_2").attachEvent("onItemClick", function(id, e, node){
+            if (id === '1'){
+                $$('pop_2').hide();
+                $$('win_modify').show({x:100, y:800});
+
+            	$$('grid_modify').단축코드 = $$('grid_db').getItem($$('grid_db').getSelectedId()).단축코드;
+                get_for_modify();
+            }
+            else if (id === '2'){open_ju1010($$('list_jong_select').getItem($$('list_jong_select').getSelectedId()).단축코드, $$('list_jong_select').getItem($$('list_jong_select').getSelectedId()).종목명, 'bc1010');}
+            else if (id === '4'){ $$("list_jong_select").clearAll();}
+        });
+
+
+        start_page();
+    });  
+
+</script>
+
+</body>
+</html>

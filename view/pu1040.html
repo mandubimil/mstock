@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<html>
+	<head>
+        <link rel="stylesheet" href="/static/webix/codebase/skins/webix.css" type="text/css" media="screen" charset="utf-8">
+        <script src="/static/webix/codebase/webix.js" type="text/javascript"  charset="utf-8"></script>
+
+        <style>@font-face{font-family: 'D2Coding';src: url(/static/D2Coding.woff) format('woff');}
+            body, table, div, p, h1, h2, h3, h4, h5, h6, pre {font-family:'D2Coding';}</style>
+    		
+        <script src="/view/common.js" type="text/javascript"  charset="utf-8"></script>
+        <script src="/view/pu1040.js" type="text/javascript"  charset="utf-8"></script>
+
+<body>
+<script>
+    webix.ready(function()
+    {   
+
+        var main_view =
+        {
+            type:"space",
+            cols:
+            [
+                {width:10},
+                {
+                    rows:
+                    [
+                        { height:10},                        
+                        { view:"richselect", id:'cron_server',label:"서버", labelAlign:"right", width:180,
+                            options:
+                            [ 
+                                { id:'demo', value:"demo" }, 
+                                { id:'hts', value:"hts" }, 
+                            ]
+                        },
+                        { view:"text", label:"파일", labelAlign:"right", id:"cron_file", width:300 },
+                        { view:"text", label:"구분", labelAlign:"right", id:"cron_gu", width:300 },
+                        { view:"textarea", label:"설명", labelAlign:"right", width:300, id:"cron_content", height:200},
+                        { height:20},
+                        { view:"richselect", id:'cron_exe',label:"실행", labelAlign:"right", width:180,
+                            options:
+                            [ 
+                                { id:'실행', value:"실행" }, 
+                                { id:'중지', value:"중지" }, 
+                            ]
+                        },
+                        { view:"text", label:"비고", labelAlign:"right", width:300, id:"cron_bigo"},
+                        {},
+                        {
+                            cols:
+                            [
+                                { view:"button", value:"삭제", autowidth:true, click:"del_setting"},
+                                { view:"button", value:"초기화", autowidth:true, click:"clear_setting"},
+                                {},
+                                { view:"button", value:"저장", autowidth:true, click:"set_setting"},
+                            ]
+                        }
+                    ]                
+                },
+                { width:10},
+                {view:"datatable", id:"grid_setting", resizeColumn:true, autoConfig:true},
+            ]
+        };
+        
+        webix.ui(main_view);
+
+        $$("grid_setting").attachEvent("onItemClick", function(id, e, node)
+        {
+            $$('cron_server').setValue($$("grid_setting").getItem(id).서버_);
+            $$('cron_file').setValue($$("grid_setting").getItem(id).파일_);
+            $$('cron_gu').setValue($$("grid_setting").getItem(id).구분_);
+            $$('cron_content').setValue($$("grid_setting").getItem(id).설명_);
+            $$('cron_exe').setValue($$("grid_setting").getItem(id).실행_);
+            $$('cron_bigo').setValue($$("grid_setting").getItem(id).비고_);
+        });            
+
+        start_page();
+    });  
+
+</script>
+
+</body>
+</html>

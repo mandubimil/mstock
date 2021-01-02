@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<html>
+	<head>
+        <link rel="stylesheet" href="/static/webix/codebase/skins/webix.css" type="text/css" media="screen" charset="utf-8">
+        <script src="/static/webix/codebase/webix.js" type="text/javascript"  charset="utf-8"></script>
+
+        <style>@font-face{font-family: 'D2Coding';src: url(/static/D2Coding.woff) format('woff');}
+            body, table, div, p, h1, h2, h3, h4, h5, h6, pre {font-family:'D2Coding';}</style>
+    		
+        <script src="/view/common.js" type="text/javascript"  charset="utf-8"></script>
+        <script src="/view/pu1020.js" type="text/javascript"  charset="utf-8"></script>
+
+<body>
+<script>
+    webix.ready(function()
+    {   
+        webix.ui({view:"popup",	id:"pop_1", head:"Submenu", width:180,
+            body:{view:"list", id:"list_1", data:[ 
+                                            {id:"1", location:"삭제"},
+                                            ],
+                datatype:"json", template:"#location#",	select:true, autoheight:true,
+            }
+        });
+
+        webix.ui({view:"popup",	id:"pop_2", head:"Submenu", width:180,
+            body:{view:"list", id:"list_2", data:[ 
+                                            {id:"1", location:"삭제"},
+                                            {id:"2", location:"주가 차트 팝업"},
+                                            {id:"3", location:"거래 차트 팝업"},
+                                            {id:"4", location:"주가 모든 차트 팝업"},
+                                            {id:"5", location:"매수 예약"},
+                                            ],
+                datatype:"json", template:"#location#",	select:true, autoheight:true,
+            }
+        });
+
+        webix.ui({view:"popup",	id:"pop_3", head:"Submenu", width:180,
+            body:{view:"list", id:"list_3", data:[ 
+                                            {id:"1", location:"삭제"},
+                                            {id:"2", location:"주가 차트 팝업"},
+                                            {id:"3", location:"거래 차트 팝업"},
+                                            {id:"4", location:"주가 모든 차트 팝업"},
+                                            ],
+                datatype:"json", template:"#location#",	select:true, autoheight:true,
+            }
+        });
+
+        webix.ui({view:"popup",	id:"pop_4", head:"Submenu", width:180,
+            body:{view:"list", id:"list_4", data:[ 
+                                            {id:"2", location:"주가 차트 팝업"},
+                                            {id:"3", location:"거래 차트 팝업"},
+                                            {id:"4", location:"주가 모든 차트 팝업"},
+                                            {id:"5", location:"매도 예약"},
+                                            ],
+                datatype:"json", template:"#location#",	select:true, autoheight:true,
+            }
+        });
+
+        var main_view =
+        {
+            type:"space",
+            cols:
+            [
+                {
+                    rows:
+                    [
+                        {
+                            cols:
+                            [
+                                { view:"text", id:"text_group", value:"임시", width:120},
+                                { view:"button", value:"초기화", autowidth:true, click:"clear_jong"},
+                                { view:"button", value:"저장", autowidth:true, click:"insert_group"},
+                            ]
+                        },
+                        { view:"list", id:"list_imsi_jong", select:true, template:"#종목명#"},
+                        {
+                            cols:
+                            [
+                                {},
+                                {view:"text", id: "day_start", width:80},
+                                {view:"label", label:"~", width:10},
+                                {view:"text", id: "day_end", width:80},
+                            ]
+                        },
+                    ]
+                },
+                {
+                    rows:
+                    [
+                        {
+                            cols:
+                            [
+                                {},
+                                { view:"button", value:"다시읽기", autowidth:true, click:"get_group();"},
+                            ]
+                        },
+                        {view:"datatable", id:"grid_group", resizeColumn:true, autoConfig:true},
+                        {view:"datatable", id:"grid_group_jong", resizeColumn:true, select:true, editable:true,
+                            columns:
+                            [
+                                { id:"종목명",	header:"종목명", adjust:true},
+                                { id:"등록주가",    header:"등록주가", adjust:true,
+                                    format:webix.Number.numToStr({
+                                        groupDelimiter:",",
+                                        groupSize:3
+                                })},
+                                { id:"최종가",    header:"최종가", adjust:true,
+                                    format:webix.Number.numToStr({
+                                        groupDelimiter:",",
+                                        groupSize:3
+                                })},
+                                { id:"등락",    header:"등락", adjust:true},
+                                { id:"등록일자",    header:"등록일자", adjust:true},
+                                { id:"비고1",    header:"비고1", adjust:true, editor:"text"},
+                                { id:"비고2",    header:"비고2", adjust:true, editor:"text"},
+                                { id:"비고3",    header:"비고3", adjust:true, editor:"text"},
+                            ]
+                        },
+
+                        {
+                            cols:
+                            [
+                                {},
+                                {view:"text", id: "text_group_name", width:200},
+                                { view:"button", value:"다시읽기", autowidth:true, click:"get_group_jong($$('grid_group').getItem(id).그룹명);"},
+                                { view:"button", value:"저장", autowidth:true, click:"update_group_jong"},
+                            ]
+                        },
+                    ]
+                },
+                {
+                    rows:
+                    [
+                        {
+                            cols:
+                            [
+                                {width:300},
+                                { view:"button", value:"다시읽기", autowidth:true, click:"get_list_bo();"},
+                            ]
+                        },
+                        {view:"datatable", id:"grid_bo", resizeColumn:true, autoConfig:true},                       
+                    ]
+                }
+
+            ]
+        };
+
+        webix.ui(
+        {
+            rows:
+            [
+                main_view,
+                {view:"datatable", id:"grid_reservation", resizeColumn:true, autoConfig:true, height:300},                       
+            ]
+        });
+
+        $$("grid_group").attachEvent("onItemClick", function(id, e, node)
+        {
+            get_group_jong($$('grid_group').getItem(id).그룹명);
+        });          
+        
+        $$("grid_group").attachEvent("onItemDblClick", function(id, e, node)
+        {
+            $$('pop_1').show(node, {pos:"right"});
+        });          
+
+        $$("list_1").attachEvent("onItemClick", function(id, e, node){
+            if (id === '1'){del_group();}
+        });        
+        
+        $$("grid_group_jong").attachEvent("onItemDblClick", function(id, e, node)
+        {
+            $$('pop_2').show(node, {pos:"right"});
+        });          
+
+        $$("list_2").attachEvent("onItemClick", function(id, e, node){
+            if (id === '1'){del_group_jong();}
+            else if (id === '2'){open_chart_window($$('grid_group_jong').getItem($$('grid_group_jong').getSelectedId()).단축코드
+                                                  ,$$('day_start').getValue()
+                                                  ,$$('day_end').getValue() );}
+            else if (id === '3'){open_ger_chart_window($$('grid_group_jong').getItem($$('grid_group_jong').getSelectedId()).단축코드
+                                                  ,$$('day_start').getValue()
+                                                  ,$$('day_end').getValue() );}
+            else if (id === '4')
+            {
+                let jong_list = [];
+                for (i=0 ; i<$$("grid_group_jong").count() ; i++)
+                {
+                    let jong = 
+                    {
+                        "단축코드":$$("grid_group_jong").getItem($$("grid_group_jong").getIdByIndex(i)).단축코드,
+                        "종목명":$$("grid_group_jong").getItem($$("grid_group_jong").getIdByIndex(i)).종목명,
+                    }
+                    jong_list.push(jong);
+                }
+
+                let s_data = {
+                    "시작일자": $$('day_start').getValue(),
+                    "종료일자": $$('day_end').getValue(),
+                    "종목들": jong_list
+                }               
+
+                open_all_chart_window(s_data);                                                
+            }    
+            else if (id === '5')
+            {
+                webix.message($$("grid_group_jong").getItem($$("grid_group_jong").getSelectedId()).종목명);
+                open_meme_window($$('grid_group_jong').getItem($$('grid_group_jong').getSelectedId()).단축코드, 
+                                 $$('grid_group_jong').getItem($$('grid_group_jong').getSelectedId()).종목명, 
+                                 1, "매수", 0);
+            }
+
+        });        
+        
+        $$("grid_bo").attachEvent("onItemDblClick", function(id, e, node)
+        {
+            $$('pop_4').show(node, {pos:"right"});
+        });          
+
+        $$("list_4").attachEvent("onItemClick", function(id, e, node){
+            if (id === '1'){del_group_jong();}
+            else if (id === '2'){open_chart_window($$('grid_bo').getItem($$('grid_bo').getSelectedId()).단축코드
+                                                  ,$$('day_start').getValue()
+                                                  ,$$('day_end').getValue() );}
+            else if (id === '3'){open_ger_chart_window($$('grid_bo').getItem($$('grid_bo').getSelectedId()).단축코드
+                                                  ,$$('day_start').getValue()
+                                                  ,$$('day_end').getValue() );}
+            else if (id === '4')
+            {
+                let jong_list = [];
+                for (i=0 ; i<$$("grid_bo").count() ; i++)
+                {
+                    let jong = 
+                    {
+                        "단축코드":$$("grid_bo").getItem($$("grid_bo").getIdByIndex(i)).단축코드,
+                        "종목명":$$("grid_bo").getItem($$("grid_bo").getIdByIndex(i)).종목명,
+                    }
+                    jong_list.push(jong);
+                }
+
+                let s_data = {
+                    "시작일자": $$('day_start').getValue(),
+                    "종료일자": $$('day_end').getValue(),
+                    "종목들": jong_list
+                }
+
+                open_all_chart_window(s_data);                                                
+            }            
+            else if (id === '5')
+            {
+                webix.message($$("grid_bo").getItem($$("grid_bo").getIdByIndex(i)).종목명);
+                open_meme_window($$('grid_bo').getItem($$('grid_bo').getSelectedId()).단축코드, 
+                                 $$('grid_bo').getItem($$('grid_bo').getSelectedId()).종목명,
+                                 $$('grid_bo').getItem($$('grid_bo').getSelectedId()).수량,
+                                 "매도",
+                                 $$('grid_bo').getItem($$('grid_bo').getSelectedId()).매매순번,
+                                 );
+            }
+
+        });          
+
+        $$("list_imsi_jong").attachEvent("onItemDblClick", function(id, e, node){
+            $$('pop_3').show(node, {pos:"right"});
+        });        
+
+        $$("list_3").attachEvent("onItemClick", function(id, e, node){
+            if (id === '1'){
+                webix.message(id);
+                $$("list_imsi_jong").remove($$("list_imsi_jong").getSelectedId());
+            }
+            else if (id === '2'){open_chart_window($$('list_imsi_jong').getItem($$('list_imsi_jong').getSelectedId()).단축코드
+                                                  ,$$('day_start').getValue()
+                                                  ,$$('day_end').getValue() );}
+            else if (id === '3'){open_ger_chart_window($$('list_imsi_jong').getItem($$('list_imsi_jong').getSelectedId()).단축코드
+                                                  ,$$('day_start').getValue()
+                                                  ,$$('day_end').getValue() );}
+            else if (id === '4')
+            {
+                let jong_list = [];
+                for (i=0 ; i<$$("list_imsi_jong").count() ; i++)
+                {
+                    let jong = 
+                    {
+                        "단축코드":$$("list_imsi_jong").getItem($$("list_imsi_jong").getIdByIndex(i)).단축코드,
+                        "종목명":$$("list_imsi_jong").getItem($$("list_imsi_jong").getIdByIndex(i)).종목명,
+                    }
+                    jong_list.push(jong);
+                }
+
+                let s_data = {
+                    "시작일자": $$('day_start').getValue(),
+                    "종료일자": $$('day_end').getValue(),
+                    "종목들": jong_list
+                }
+
+                open_all_chart_window(s_data);                                                
+            }
+        });        
+
+
+
+        start_page();
+    });  
+
+</script>
+
+</body>
+</html>

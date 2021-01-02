@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<html>
+	<head>
+        <link rel="stylesheet" href="/static/webix/codebase/skins/webix.css" type="text/css" media="screen" charset="utf-8">
+        <script src="/static/webix/codebase/webix.js" type="text/javascript"  charset="utf-8"></script>
+
+        <style>@font-face{font-family: 'D2Coding';src: url(/static/D2Coding.woff) format('woff');}
+            body, table, div, p, h1, h2, h3, h4, h5, h6, pre {font-family:'D2Coding';}</style>
+    		
+        <script src="/view/common.js" type="text/javascript"  charset="utf-8"></script>
+        <script src="/view/bc1010.js" type="text/javascript"  charset="utf-8"></script>
+
+<body>
+<script>
+
+
+    webix.ready(function()
+    {   
+        webix.ui({view:"popup",	id:"pop_1", head:"Submenu", width:180,
+            body:{view:"list", id:"list_1", data:[ 
+                                            {id:"1", location:"차트 보기"},
+                                            {id:"2", location:"주가 차트 팝업"},
+                                            {id:"22", location:"거래 차트 팝업"},
+                                            {id:"3", location:"종목관리&수기매매 팝업"},
+                                            {id:"4", location:"선택 for 모두추가"},
+                                            {id:"5", location:"모두선택 for 모두추가"},
+                                            ],
+                datatype:"json", template:"#location#",	select:true, autoheight:true,
+            }
+        });
+
+        webix.ui({view:"popup",	id:"pop_2", head:"Submenu", width:180,
+            body:{view:"list", id:"list_2", data:[ 
+                                            {id:"1", location:"차트 보기"},
+                                            {id:"2", location:"차트 팝업 열기"},
+                                            {id:"22", location:"거래 차트 팝업"},
+                                            {id:"222", location:"모든 주가 차트 팝업"},
+                                            {id:"3", location:"종목관리&수기매매 팝업"},
+                                            {id:"5", location:"좀합 주가 차트 팝업"},
+                                            {id:"4", location:"모두 지우기"},
+                                            ],
+                datatype:"json", template:"#location#",	select:true, autoheight:true,
+            }
+        });
+
+        var main_view =
+        {
+            type:"space",
+            cols:
+            [
+                {
+                    width:250,
+                    rows:
+                    [
+                        { view:"list", id:"list_jong_all", select:true, template:"#종목명#"},
+                        {height:3},
+                        { view:"list", id:"list_jong_select", select:true, height:300, template:"#종목명#"},
+                    ]
+                },
+                {                         
+                    rows:
+                    [
+                        {
+                            rows:
+                            [
+                            {
+                                    view:"chart", id:"chart_1",
+                                    padding:{ top:10, bottom:20, right:10, left:60 }
+                                },
+                                {
+                                    view:"chart", id:"chart_2", height:100, 
+                                    padding:{ top:10, bottom:0, right:10, left:60 }
+                                },
+                                {height:5},
+                                {
+                                    cols:
+                                    [
+                                        { view:"template", id:"ju_list_label", template:"mandu", height:32},
+                                        {width:10},
+                                        {view:"text", id: "chart_min", width:55},
+                                        {view:"text", id: "chart_max", width:55},
+                                        {width:10},
+                                        { view:"button", value:"추가", autowidth:true, click:"button_insert_chart"},
+                                        { view:"button", value:"초기화", autowidth:true, click:"init_chart"},
+                                        { view:"button", value:"모두추가", autowidth:true, click:"all_insert_chart"}
+                                    ]
+                                }
+                            ]
+                        },
+                        {height:5},
+
+                        {
+                            view:"chart", id:"chart_tot",
+                            padding:{ top:10, bottom:20, right:10, left:50 }
+                        }
+                    ]
+                },                       
+            ]
+        };
+        
+        webix.ui(
+        {
+            rows:
+            [
+                bar_top, 
+                main_view,
+                {
+                    cols:
+                    [
+                        bar_buttom_1,
+                    ]
+                },                 
+            ]
+        });    
+
+
+        $$("list_jong_all").attachEvent("onItemClick", function(id, e, node)
+        {
+            $$('pop_1').show(node, {pos:"right"});
+        });  
+
+        $$("list_1").attachEvent("onItemClick", function(id, e, node){
+            if (id === '1'){get_chart($$('list_jong_all').getItem($$('list_jong_all').getSelectedId()).단축코드);}
+            else if (id === '2'){open_chart_window($$('list_jong_all').getItem($$('list_jong_all').getSelectedId()).단축코드
+                                                  ,$$('day_start').getValue()
+                                                  ,$$('day_end').getValue() );
+            }
+            else if (id === '22'){open_ger_chart_window($$('list_jong_all').getItem($$('list_jong_all').getSelectedId()).단축코드
+                                                  ,$$('day_start').getValue()
+                                                  ,$$('day_end').getValue() );
+            }
+            else if (id === '3'){open_interest_window($$('list_jong_all').getItem($$('list_jong_all').getSelectedId()).단축코드,
+                                                      $$('list_jong_all').getItem($$('list_jong_all').getSelectedId()).종목명);
+            }
+            else if (id === '4'){insert_select_jong();}
+            else if (id === '5'){insert_all_jong();}
+        });
+
+        $$("list_jong_select").attachEvent("onItemClick", function(id, e, node)
+        {
+            $$('pop_2').show(node, {pos:"right"});
+        });  
+
+        $$("list_2").attachEvent("onItemClick", function(id, e, node){
+            if (id === '1'){get_chart($$('list_jong_select').getItem($$('list_jong_select').getSelectedId()).단축코드);}
+            else if (id === '2'){open_chart_window($$('list_jong_all').getItem($$('list_jong_all').getSelectedId()).단축코드
+                                                  ,$$('day_start').getValue()
+                                                  ,$$('day_end').getValue() );}
+            else if (id === '22'){open_ger_chart_window($$('list_jong_all').getItem($$('list_jong_all').getSelectedId()).단축코드
+                                                  ,$$('day_start').getValue()
+                                                  ,$$('day_end').getValue() );}
+            else if (id === '222')
+            {
+                let jong_list = [];
+                for (i=0 ; i<$$("list_jong_select").count() ; i++)
+                {
+                    let jong = 
+                    {
+                        "단축코드":$$("list_jong_select").getItem($$("list_jong_select").getIdByIndex(i)).단축코드,
+                        "종목명":$$("list_jong_select").getItem($$("list_jong_select").getIdByIndex(i)).종목명,
+                    }
+                    jong_list.push(jong);
+                }
+
+                let s_data = {
+                    "시작일자": $$('day_start').getValue(),
+                    "종료일자": $$('day_end').getValue(),
+                    "종목들": jong_list
+                }
+
+                open_all_chart_window(s_data);                                                
+            }
+            else if (id === '3'){open_interest_window($$('list_jong_select').getItem($$('list_jong_select').getSelectedId()).단축코드,
+                                                      $$('list_jong_select').getItem($$('list_jong_select').getSelectedId()).종목명);
+            }
+            else if (id === '4'){ $$("list_jong_select").clearAll();}
+            else if (id === '5'){ 
+                let grid_1 = $$("list_jong_select");
+                let p_day_start = $$("day_start").getValue();
+                let p_day_end = $$("day_end").getValue();
+
+                let jong_list = "'gogo'";
+                let jong_list_name = "";
+                for (i1=0 ; i1<grid_1.count() ; i1++)
+                {
+                    jong_list = jong_list + ",'"+grid_1.getItem(grid_1.getIdByIndex(i1)).단축코드+"'";
+                    jong_list_name = jong_list_name + "<br>" +grid_1.getItem(grid_1.getIdByIndex(i1)).단축코드+":"+grid_1.getItem(grid_1.getIdByIndex(i1)).종목명;
+                }    
+
+                open_sum_chart_window(jong_list, jong_list_name, p_day_start, p_day_end); 
+            }
+
+        });
+
+
+        $$("text_jong_name").attachEvent("onTimedKeyPress",function()
+        {
+            var value = this.getValue().toLowerCase();
+            $$("list_jong_all").filter(function(obj){
+                return obj.단축코드.toLowerCase().indexOf(value)!=-1 || obj.종목명.toLowerCase().indexOf(value)!=-1;
+            });       
+        });        
+
+        $$("combobox_si").attachEvent("onChange", function(newv, oldv){ get_jong_list(); });
+        $$("combobox_etf").attachEvent("onChange", function(newv, oldv){ get_jong_list(); });
+
+        $$("combobox_uj").attachEvent("onChange", function(newv, oldv){ get_jong_list(); });
+        $$("combobox_tm").attachEvent("onChange", function(newv, oldv){ get_jong_list(); });
+
+        start_page();
+    });  
+
+</script>
+
+</body>
+</html>

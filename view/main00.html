@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<html>
+	<head>
+        <link rel="stylesheet" href="/static/webix/codebase/skins/webix.css" type="text/css" media="screen" charset="utf-8">
+        <script src="/static/webix/codebase/webix.js" type="text/javascript"  charset="utf-8"></script>
+
+        <style>@font-face{font-family: 'D2Coding';src: url(/static/D2Coding.woff) format('woff');}
+            body, table, div, p, h1, h2, h3, h4, h5, h6, pre {font-family:'D2Coding';}</style>
+    		
+        <script src="/view/common.js" type="text/javascript"  charset="utf-8"></script>
+<body>
+<script>
+
+
+    webix.ready(function()
+    {   
+
+        webix.ui(
+        {
+            rows:
+            [
+                bar_top_main            
+            ]
+        });    
+
+    });  
+
+    gogo_windows(opener.window.$$("basic_window").getValue());
+
+</script>
+
+</body>
+</html>

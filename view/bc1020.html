@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<html>
+	<head>
+        <link rel="stylesheet" href="/static/webix/codebase/skins/webix.css" type="text/css" media="screen" charset="utf-8">
+        <script src="/static/webix/codebase/webix.js" type="text/javascript"  charset="utf-8"></script>
+
+        <style>@font-face{font-family: 'D2Coding';src: url(/static/D2Coding.woff) format('woff');}
+            body, table, div, p, h1, h2, h3, h4, h5, h6, pre {font-family:'D2Coding';}</style>
+    		
+        <script src="/view/common.js" type="text/javascript"  charset="utf-8"></script>
+        <script src="/view/bc1020.js" type="text/javascript"  charset="utf-8"></script>
+
+<body>
+<script>
+
+
+    webix.ready(function()
+    {   
+        webix.ui({view:"popup",	id:"pop_1", head:"Submenu", width:180,
+            body:{view:"list", id:"list_1", data:[ 
+                                            {id:"1", location:"추가"},
+                                            {id:"2", location:"모두 추가"},
+                                            {id:"3", location:"주가 차트 팝업"},
+                                            {id:"4", location:"거래 차트 팝업"},
+                                            ],
+                datatype:"json", template:"#location#",	select:true, autoheight:true,
+            }
+        });
+
+        webix.ui({view:"popup",	id:"pop_2", head:"Submenu", width:180,
+            body:{view:"list", id:"list_2", data:[ 
+                                            {id:"1", location:"삭제"},
+                                            {id:"2", location:"모두 삭제"},
+                                            {id:"3", location:"주가 차트 팝업"},
+                                            {id:"4", location:"거래 차트 팝업"},
+                                            {id:"5", location:"좀합 주가 차트 팝업"},
+                                            ],
+                datatype:"json", template:"#location#",	select:true, autoheight:true,
+            }
+        });
+
+        var main_view =
+        {
+            type:"space",
+            cols:
+            [
+                {
+                    rows:
+                    [
+                        {view:"datatable", id:"grid_si", resizeColumn:true, autoConfig:true},
+                        {view:"datatable", id:"grid_etf", resizeColumn:true, autoConfig:true},
+                    ]
+                },
+                {
+                    rows:
+                    [
+                        { view:"text", id:"text_uj"},
+                        {view:"datatable", id:"grid_uj", resizeColumn:true, autoConfig:true},
+                    ]
+                },                
+                {
+                    rows:
+                    [
+                        { view:"text", id:"text_tm" },
+                        {view:"datatable", id:"grid_tm", resizeColumn:true, autoConfig:true},
+                    ]
+                },                                
+                {
+                    rows:
+                    [
+                        { view:"text", id:"text_jong" },
+                        {view:"datatable", id:"grid_jong", resizeColumn:true, autoConfig:true},
+                    ]
+                },                                
+                {view:"datatable", id:"grid_jong_select", resizeColumn:true, autoConfig:true},
+            ]
+        };
+        
+        webix.ui(
+        {
+            rows:
+            [
+                main_view,
+                {
+                    view:"toolbar", elements:
+                    [
+                        {},
+                        { view:"text", id:"day_start", width:80},
+                        {view:"label", label:"~", width:10},
+                        { view:"text", id:"day_end", width:80},
+                        {width:20},
+                        { view:"button", value:"검색", click:"gogo_search()", width:100},
+                        { view:"button", value:"조건 선택취소", click:"cancel_select_jo()", width:100},
+                    ]    
+                }
+            
+            ]
+        });    
+
+        $$("text_jong").attachEvent("onTimedKeyPress",function()
+        {
+            var value = this.getValue().toLowerCase();
+            $$("grid_jong").filter(function(obj){
+                return obj.코드.toLowerCase().indexOf(value)!=-1 || obj.코드명.toLowerCase().indexOf(value)!=-1;
+            });       
+        });
+
+        $$("grid_jong").attachEvent("onItemDblClick", function(id, e, node)
+        {      
+            $$('pop_1').show(node);
+        });
+
+        $$("list_1").attachEvent("onItemClick", function(id, e, node){
+            if (id === '1'){ add_jong();}
+            else if (id === '2'){add_jong_all();}
+            else if (id === '3'){open_chart_window($$('grid_jong').getItem($$('grid_jong').getSelectedId()).코드
+                                                  ,$$('day_start').getValue()
+                                                  ,$$('day_end').getValue() );
+            }
+            else if (id === '4'){open_ger_chart_window($$('grid_jong').getItem($$('grid_jong').getSelectedId()).코드
+                                                  ,$$('day_start').getValue()
+                                                  ,$$('day_end').getValue() );
+            }
+        });
+
+        $$("grid_jong_select").attachEvent("onItemDblClick", function(id, e, node)
+        {      
+            $$('pop_2').show(node);
+        });
+
+        $$("list_2").attachEvent("onItemClick", function(id, e, node){
+            if (id === '1'){ del_jong();}
+            else if (id === '2'){ del_jong_all();}
+            else if (id === '3'){open_chart_window($$('grid_jong_select').getItem($$('grid_jong_select').getSelectedId()).코드
+                                                  ,$$('day_start').getValue()
+                                                  ,$$('day_end').getValue() );
+            }
+            else if (id === '4'){open_ger_chart_window($$('grid_jong_select').getItem($$('grid_jong_select').getSelectedId()).코드
+                                                  ,$$('day_start').getValue()
+                                                  ,$$('day_end').getValue() );
+            }
+            else if (id === '5'){ 
+                let grid_1 = $$("grid_jong_select");
+                let p_day_start = $$("day_start").getValue();
+                let p_day_end = $$("day_end").getValue();
+
+                let jong_list = "'gogo'";
+                let jong_list_name = "";
+                for (i1=0 ; i1<grid_1.count() ; i1++)
+                {
+                    jong_list = jong_list + ",'"+grid_1.getItem(grid_1.getIdByIndex(i1)).코드+"'";
+                    jong_list_name = jong_list_name + "<br>" +grid_1.getItem(grid_1.getIdByIndex(i1)).코드+":"+grid_1.getItem(grid_1.getIdByIndex(i1)).코드명;
+                }    
+
+                open_sum_chart_window(jong_list, jong_list_name, p_day_start, p_day_end); 
+            }
+        });
+
+
+        start_page();
+    });  
+
+</script>
+
+</body>
+</html>

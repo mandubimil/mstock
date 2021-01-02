@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<html>
+	<head>
+        <link rel="stylesheet" href="/static/webix/codebase/skins/webix.css" type="text/css" media="screen" charset="utf-8">
+        <script src="/static/webix/codebase/webix.js" type="text/javascript"  charset="utf-8"></script>
+
+        <style>@font-face{font-family: 'D2Coding';src: url(/static/D2Coding.woff) format('woff');}
+            body, table, div, p, h1, h2, h3, h4, h5, h6, pre {font-family:'D2Coding';}</style>
+    		
+        <script src="/view/common.js" type="text/javascript"  charset="utf-8"></script>
+        <script src="/view/bt1010.js" type="text/javascript"  charset="utf-8"></script>
+
+<body>
+<script>
+
+    webix.skin.compact.barHeight=28;webix.skin.compact.tabbarHeight=28;webix.skin.compact.rowHeight=22;webix.skin.compact.listItemHeight=28;webix.skin.compact.inputHeight=28;webix.skin.compact.layoutMargin.wide=2;webix.skin.compact.layoutMargin.space=5;webix.skin.compact.layoutPadding.space=3;
+    webix.skin.set('compact');    
+
+    webix.ready(function()
+    {  
+
+        webix.ui({view:"popup",	id:"pop_1", head:"Submenu", width:150,
+            body:{view:"list", id:"list_1", data:[ 
+                                            {id:"1", location:"단축코드별"},
+                                            {id:"2", location:"임시"},
+                                            ],
+                datatype:"json", template:"#location#",	autoheight:true, select:true
+            }
+        });
+
+        var main_view =
+        {
+            cols:
+            [
+                {
+                    type:'space',
+                    rows:
+                    [
+                        { height:20 },                  
+                        {view:"text", id: "table_name", labelAlign:"right", value:"십비시가_매도"},
+                        { view:"button", value:"테이블 읽기", click:"get_medo_list", width:170, align:"center"},
+                        { height:20 },                  
+                        { view:"button", value:"조건 초기화", click:"clear_jo_edit", width:170, align:"center"},
+                        {cols:[{view:"text", id: "bi_num", label:"비교일자", labelAlign:"right", labelWidth:"70"},{ view:"button", width:35, click:"$$('bi_num').setValue('');"}]},
+                        {cols:[{view:"text", id: "ju_num", label:"주기준", labelAlign:"right", labelWidth:"70"},{ view:"button", width:35, click:"$$('ju_num').setValue('');"}]},
+                        {cols:[{view:"text", id: "hak", label:"확률", labelAlign:"right", labelWidth:"70"},{ view:"button", width:35, click:"$$('hak').setValue('');"}]},
+                        {cols:[{view:"text", id: "gunsu", label:"건수", labelAlign:"right", labelWidth:"70"},{ view:"button", width:35, click:"$$('gunsu').setValue('');"}]},
+                        {cols:[{view:"text", id: "sang_gijun", label:"상승기준", labelAlign:"right", labelWidth:"70"},{ view:"button", width:35, click:"$$('sang_gijun').setValue('');"}]},
+                        {cols:[{view:"text", id: "sang_pan", label:"상승판매", labelAlign:"right", labelWidth:"70"},{ view:"button", width:35, click:"$$('sang_pan').setValue('');"}]},
+                        {cols:[{view:"text", id: "ha_pan", label:"하락판매", labelAlign:"right", labelWidth:"70"},{ view:"button", width:35, click:"$$('ha_pan').setValue('');"}]},
+                        {cols:[{view:"text", id: "boday", label:"보유일", labelAlign:"right", labelWidth:"70"},{ view:"button", width:35, click:"$$('boday').setValue('');"}]},
+
+                        { height:20 },
+                        { view:"button", value:"하단 리스트 검색", click:"get_medo_list_detail", width:170, align:"center"},
+                        { height:20 },
+                        { view:"button", value:"grid 1 excel", click:"webix.toExcel($$('grid_1'));", width:170, align:"center"},
+                        { view:"button", value:"grid 2 excel", click:"webix.toExcel($$('grid_2'));", width:170, align:"center"},
+                        { width:205 }
+                    ]
+                },		
+                {
+                    type:'space',
+                    rows:
+                    [
+                        { view:"datatable", id:"grid_1", resizeColumn:true, autoConfig:true },
+                        { view:"resizer"},
+                        { view:"datatable", id:"grid_2", resizeColumn:true, autoConfig:true, height:300 },
+                    ]
+                }
+            ]	
+        };	
+        
+        webix.ui(
+        {
+            rows:
+            [
+                bar_top, 
+                main_view,        
+            ]
+        });
+        
+        var grid_id='';
+        $$("grid_2").attachEvent("onItemDblClick", function(id, e, node)
+        {      
+            grid_id = id;
+            $$("pop_1").show(node)
+        });
+
+        
+        $$("grid_1").attachEvent("onItemClick", function(id, e, node){      
+
+            $$('bi_num').setValue($$("grid_1").getItem(id).비교일자);        
+            $$('ju_num').setValue($$("grid_1").getItem(id).주기준);        
+            $$('hak').setValue($$("grid_1").getItem(id).확률);        
+            $$('gunsu').setValue($$("grid_1").getItem(id).건수);        
+            $$('sang_gijun').setValue($$("grid_1").getItem(id).상승기준);
+            $$('sang_pan').setValue($$("grid_1").getItem(id).상승판매);
+            $$('ha_pan').setValue($$("grid_1").getItem(id).하락판매);
+            $$('boday').setValue($$("grid_1").getItem(id).보유일);
+        });
+
+        $$("list_1").attachEvent("onItemClick", function(id, e, node){
+            if (id === '1'){get_medo_detail('code',$$("grid_2").getItem(grid_id).매도번호, $$("grid_2").getItem(grid_id).매도번호)}
+            else if (id === '2'){get_medo_detail('day', $$("grid_2").getItem(grid_id).매도번호, $$("grid_2").getItem(grid_id).매도번호)}
+            else if (id === '3'){get_medo_detail('gubun', $$("grid_2").getItem(grid_id).매도번호, $$("grid_2").getItem(grid_id).매도번호)}
+            else if (id === '4'){get_medo_detail('yearmon', $$("grid_2").getItem(grid_id).매도번호, $$("grid_2").getItem(grid_id).매도번호)}
+        });    
+        
+        start_page();
+
+    });  
+
+</script>
+
+</body>
+</html>

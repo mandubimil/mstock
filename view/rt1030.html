@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<html>
+	<head>
+        <link rel="stylesheet" href="/static/webix/codebase/skins/webix.css" type="text/css" media="screen" charset="utf-8">
+        <script src="/static/webix/codebase/webix.js" type="text/javascript"  charset="utf-8"></script>
+
+        <style>@font-face{font-family: 'D2Coding';src: url(/static/D2Coding.woff) format('woff');}
+            body, table, div, p, h1, h2, h3, h4, h5, h6, pre {font-family:'D2Coding';}</style>
+    		
+        <script src="/view/common.js" type="text/javascript"  charset="utf-8"></script>
+        <script src="/view/rt1030.js" type="text/javascript"  charset="utf-8"></script>
+
+<body>
+<script>
+    
+webix.ready(function()
+{  
+    webix.ui({view:"popup",	id:"pop_1", head:"Submenu", width:180,
+        body:{view:"list", id:"list_1", data:[ 
+                                        {id:"2", location:"차트 팝업"},
+                                        {id:"4", location:"거래 차트 팝업"},
+                                        {id:"3", location:"종목관리&수기매매 팝업"},
+                                        ],
+            datatype:"json", template:"#location#",	select:true, autoheight:true,
+        }
+    });
+
+	var main_view = { view:"datatable", id:"grid_1", resizeColumn:true, autoConfig:true, select:'row' };
+    
+    webix.ui(
+    {
+        type:'space',
+        rows:
+        [
+            main_view,        
+            bar_buttom_1
+        ]
+    });
+
+    $$("grid_1").attachEvent("onItemDblClick", function(id, e, node)
+    {
+        $$('pop_1').show(node, {pos:"right"});
+    });  
+
+    $$("list_1").attachEvent("onItemClick", function(id, e, node){
+        if (id === '2'){open_chart_window($$('grid_1').getItem($$('grid_1').getSelectedId()).단축코드
+                                            ,$$('day_start').getValue()
+                                            ,$$('day_end').getValue() );}
+        else if (id === '3'){open_interest_window($$('grid_1').getItem($$('grid_1').getSelectedId()).단축코드
+                                                    ,$$('grid_1').getItem($$('grid_1').getSelectedId()).종목명);}
+        else if (id === '4'){open_ger_chart_window($$('grid_1').getItem($$('grid_1').getSelectedId()).단축코드
+                                                ,$$('day_start').getValue()
+                                                ,$$('day_end').getValue() );}
+    });        
+
+    $$("text_jong_name").attachEvent("onTimedKeyPress",function()
+    {
+        var value = this.getValue().toLowerCase();
+        $$("grid_1").filter(function(obj){
+            return obj.단축코드.toLowerCase().indexOf(value)!=-1 || obj.종목명.toLowerCase().indexOf(value)!=-1;
+        });       
+
+        $$("grid_2").filter(function(obj){
+            return obj.단축코드.toLowerCase().indexOf(value)!=-1 || obj.종목명.toLowerCase().indexOf(value)!=-1;
+        });       
+    });        
+
+    
+    start_page();
+});  
+
+</script>
+
+</body>
+</html>

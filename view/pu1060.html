@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<html>
+	<head>
+        <link rel="stylesheet" href="/static/webix/codebase/skins/webix.css" type="text/css" media="screen" charset="utf-8">
+        <script src="/static/webix/codebase/webix.js" type="text/javascript"  charset="utf-8"></script>
+
+        <style>@font-face{font-family: 'D2Coding';src: url(/static/D2Coding.woff) format('woff');}
+            body, table, div, p, h1, h2, h3, h4, h5, h6, pre {font-family:'D2Coding';}</style>
+    		
+        <script src="/view/common.js" type="text/javascript"  charset="utf-8"></script>
+        <script src="/view/pu1060.js" type="text/javascript"  charset="utf-8"></script>
+
+<body>
+<script>
+    webix.ready(function()
+    {   
+
+        var main_view =
+        {
+            type:"space",
+            rows:
+            [
+                {
+                    cols:
+                    [
+                        { view:"template", id:"ju_list_label", template:"mandu", height:55},
+                        {
+                            rows:
+                            [
+                                {},
+                                {
+                                    cols:
+                                    [
+                                        {view:"text", id: "chart_min", width:55, value:700},
+                                        {view:"text", id: "chart_max", width:55, value:1300},
+                                        { view:"button", value:"다시읽기", autowidth:true, click:"init_chart(); start_page();"},
+                                    ]
+                                }    
+                            ]
+                        }
+                    ]    
+
+                },
+                {
+                    view:"chart", id:"chart_tot",
+                    padding:{ top:10, bottom:20, right:10, left:60 }
+                },                
+            ]
+        };
+        
+        webix.ui(main_view);
+
+        start_page();
+    });  
+
+</script>
+
+</body>
+</html>

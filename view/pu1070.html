@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<html>
+	<head>
+        <link rel="stylesheet" href="/static/webix/codebase/skins/webix.css" type="text/css" media="screen" charset="utf-8">
+        <script src="/static/webix/codebase/webix.js" type="text/javascript"  charset="utf-8"></script>
+
+        <style>@font-face{font-family: 'D2Coding';src: url(/static/D2Coding.woff) format('woff');}
+            body, table, div, p, h1, h2, h3, h4, h5, h6, pre {font-family:'D2Coding';}</style>
+    		
+        <script src="/view/common.js" type="text/javascript"  charset="utf-8"></script>
+        <script src="/view/pu1070.js" type="text/javascript"  charset="utf-8"></script>
+
+        <script type="text/javascript">
+            webix.require.disabled = true;
+            webix.codebase = "/public/js/";
+        </script>	
+
+        <script src="/static/codemirror/webix_codemirror.js"></script>	
+        <script src="/static/codemirror/lib/codemirror.js"></script>	
+        <script src="/static/codemirror/mode/javascript/javascript.js"></script>		
+        <script src="/static/codemirror/mode/python/python.js"></script>		
+        <script src="/static/codemirror/mode/sql/sql.js"></script>		
+        <script src="/static/codemirror/mode/go/go.js"></script>		
+      
+        <link rel="stylesheet" type="text/css" href="/static/codemirror/lib/codemirror.css">
+        <link rel="stylesheet" type="text/css" href="/static/codemirror/theme/oceanic-next.css">
+        <link rel="stylesheet" type="text/css" href="/static/codemirror/theme/dracula.css">
+        <link rel="stylesheet" type="text/css" href="/static/codemirror/theme/darcula.css">
+      
+        <link rel="stylesheet" href="/static/codemirror/addon/dialog/dialog.css">
+        <script src="/static/codemirror/addon/dialog/dialog.js"></script>
+        <script src="/static/codemirror/addon/search/searchcursor.js"></script>
+        <script src="/static/codemirror/addon/search/search.js"></script>
+        <script src="/static/codemirror/addon/search/jump-to-line.js"></script>	      
+
+
+<body>
+<script>
+    webix.ready(function()
+    {   
+
+        var main_view =
+        {
+            type:"space",
+            rows:
+            [
+                {
+                    cols:
+                    [
+                        {},
+                        { view:"text", id:"day_start" , width:100},
+                        {view:"label", label:"~", width:10},
+                        { view:"text", id:"day_end" , width:100},                                                        
+                        { view:"button", value:"삭제", autowidth:true, click:"del_query"},
+                        { view:"button", value:"다시읽기", autowidth:true, click:"get_query()"},
+                        { view:"button", value:"저장", autowidth:true, click:"save_query"},
+                        { view:"text", id:"text_name", width:300, value:"임시"},
+                        { view:"button", value:"실행", autowidth:true, click:"run_query"},
+                    ]
+                },      
+                {
+                    cols:
+                    [
+                        {view:"datatable", id:"grid_query", resizeColumn:true, autoConfig:true, width:200},                  
+                        { view:"codemirror-editor", mode:"sql", id:"contents_1", height:800 },
+                    ]
+                },
+                { view:"resizer"},
+                {view:"datatable", id:"grid_result", resizeColumn:true, autoConfig:true, select:true,},                
+            ]
+        };
+        
+        webix.ui(main_view);
+
+        webix.UIManager.addHotKey("Alt+R", function() 
+        { 
+            run_query();
+        });
+
+        $$("grid_query").attachEvent("onItemDblClick", function(id, e, node)
+        {
+            get_query_content();
+        });  
+
+        $$("grid_result").attachEvent("onItemDblClick", function(id, e, node)
+        {
+            let dan_col_num  = 999;
+            let col_num = 0;
+            for (let col in $$("grid_result").config.columns)
+            {
+                if ($$("grid_result").config.columns[col].col_name == "단축코드")
+                {
+                    break;
+                }
+                col_num = col_num + 1;
+            }
+
+            if (col_num != 999)
+            {
+                open_chart_window($$('grid_result').getItem(id)[col_num]
+                                                ,$$('day_start').getValue()
+                                                ,$$('day_end').getValue() );
+            }
+        });        
+
+
+        start_page();
+    });  
+
+</script>
+
+</body>
+</html>

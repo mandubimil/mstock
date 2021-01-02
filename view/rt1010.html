@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<html>
+	<head>
+        <link rel="stylesheet" href="/static/webix/codebase/skins/webix.css" type="text/css" media="screen" charset="utf-8">
+        <script src="/static/webix/codebase/webix.js" type="text/javascript"  charset="utf-8"></script>
+
+        <style>@font-face{font-family: 'D2Coding';src: url(/static/D2Coding.woff) format('woff');}
+            body, table, div, p, h1, h2, h3, h4, h5, h6, pre {font-family:'D2Coding';}</style>
+    		
+        <script src="/view/common.js" type="text/javascript"  charset="utf-8"></script>
+        <script src="/view/rt1010.js" type="text/javascript"  charset="utf-8"></script>
+
+<body>
+<script>
+
+    webix.skin.compact.barHeight=28;webix.skin.compact.tabbarHeight=28;webix.skin.compact.rowHeight=22;webix.skin.compact.listItemHeight=28;webix.skin.compact.inputHeight=28;webix.skin.compact.layoutMargin.wide=2;webix.skin.compact.layoutMargin.space=5;webix.skin.compact.layoutPadding.space=3;
+    webix.skin.set('compact');    
+
+    webix.ready(function()
+    {   
+        webix.ui({view:"popup",	id:"pop_1", head:"Submenu", width:180,
+            body:{view:"list", id:"list_1", data:[ 
+                                            {id:"1", location:"차트 보기"},
+                                            {id:"2", location:"차트 윈도우 열기"},
+                                            {id:"3", location:"관심종목 등록"},
+                                            {id:"4", location:"선택 for 모두추가"},
+                                            {id:"5", location:"모두선택 for 모두추가"},
+                                            ],
+                datatype:"json", template:"#location#",	select:true, autoheight:true,
+            }
+        });
+
+        var main_view =
+        {
+            type:"space",
+            cols:
+            [
+                    {view:"datatable", id:"grid_1", resizeColumn:true, autoConfig:true},
+                    { view:"resizer"},
+                    {view:"datatable", id:"grid_2", resizeColumn:true, autoConfig:true},                
+            ]
+        };
+
+        var bar_select =
+        {
+            rows:
+            [
+                {},
+                {
+                    cols:
+                    [
+                        {
+                            view:"radio", id:"radiobox_1", value:1,  options:
+                            [
+                                { value:"종목", id:1 },
+                                { value:"업종-", id:2 },
+                                { value:"테마-", id:3 },
+                                { value:"업종-테마-", id:4 },
+                                { value:"테마-업종-", id:5 },
+                            ]
+                        },              
+                        {
+                            view:"radio", id:"radiobox_2", value:1,  width:200, options:
+                            [
+                                { value:"grid1", id:1 },
+                                { value:"grid2", id:2 },
+                            ]
+                        }
+                    ]                    
+                }
+            ]
+        };
+        
+        webix.ui(
+        {
+            rows:
+            [
+                bar_top, 
+                main_view,
+                {
+                    view:"toolbar", elements:
+                    [
+                        bar_buttom_1,
+                        bar_select,
+                        { view:"button", value:"검색", click:"gogo_search()", width:60},
+                    ]    
+                }
+            ]
+        });    
+
+        $$("text_jong_name").attachEvent("onTimedKeyPress",function()
+        {
+            var value = this.getValue().toLowerCase();
+            $$("grid_1").filter(function(obj){
+                return obj.단축코드.toLowerCase().indexOf(value)!=-1 || obj.종목명.toLowerCase().indexOf(value)!=-1;
+            });       
+
+            $$("grid_2").filter(function(obj){
+                return obj.단축코드.toLowerCase().indexOf(value)!=-1 || obj.종목명.toLowerCase().indexOf(value)!=-1;
+            });       
+        });        
+
+        start_page();
+    });  
+
+</script>
+
+</body>
+</html>

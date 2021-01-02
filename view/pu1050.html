@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<html>
+	<head>
+        <link rel="stylesheet" href="/static/webix/codebase/skins/webix.css" type="text/css" media="screen" charset="utf-8">
+        <script src="/static/webix/codebase/webix.js" type="text/javascript"  charset="utf-8"></script>
+
+        <style>@font-face{font-family: 'D2Coding';src: url(/static/D2Coding.woff) format('woff');}
+            body, table, div, p, h1, h2, h3, h4, h5, h6, pre {font-family:'D2Coding';}</style>
+    		
+        <script src="/view/common.js" type="text/javascript"  charset="utf-8"></script>
+        <script src="/view/pu1050.js" type="text/javascript"  charset="utf-8"></script>
+
+<body>
+<script>
+    webix.ready(function()
+    {   
+
+        var main_view =
+        {
+            type:"space",
+            cols:
+            [
+                {
+                    rows:
+                    [
+                        { view:"template", id:"tms2", template:"거래량, 외국계, 기관, 개인, 프로그램", width:150},
+                    ]
+                },
+                {
+                    rows:
+                    [
+                        {cols:[{},{ view:"template", template:"주가", height:18, width:100},]},
+                        {
+                            view:"chart", id:"chart_1",
+                            padding:{ top:10, bottom:20, right:10, left:60 }
+                        },
+                        {cols:[{},{ view:"template", template:"누적거래", height:18, width:100},]},
+                        {
+                            view:"chart", id:"chart_2", height:150, 
+                            padding:{ top:10, bottom:0, right:10, left:60 }
+                        },
+                        {cols:[{},{ view:"template", template:"개인", height:18, width:100},]},
+                        {
+                            view:"chart", id:"chart_3", height:150, 
+                            padding:{ top:10, bottom:0, right:10, left:60 }
+                        },
+                        {cols:[{},{ view:"template", template:"기관", height:18, width:100},]},
+                        {
+                            view:"chart", id:"chart_4", height:150, 
+                            padding:{ top:10, bottom:0, right:10, left:60 }
+                        },
+                        {cols:[{},{ view:"template", template:"외국인", height:18, width:100},]},
+                        {
+                            view:"chart", id:"chart_5", height:150, 
+                            padding:{ top:10, bottom:0, right:10, left:60 }
+                        },
+                        {cols:[{},{ view:"template", template:"외국계", height:18, width:100},]},
+                        {
+                            view:"chart", id:"chart_6", height:150, 
+                            padding:{ top:10, bottom:0, right:10, left:60 }
+                        },
+                        {cols:[{},{ view:"template", template:"프로그램", height:18, width:100},]},
+                        {
+                            view:"chart", id:"chart_7", height:150, 
+                            padding:{ top:10, bottom:0, right:10, left:60 },
+                        },
+                    ]            
+                }
+            ]
+        };
+        
+        webix.ui(main_view);
+
+        start_page();
+    });  
+
+</script>
+
+</body>
+</html>

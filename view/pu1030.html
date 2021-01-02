@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<html>
+	<head>
+        <link rel="stylesheet" href="/static/webix/codebase/skins/webix.css" type="text/css" media="screen" charset="utf-8">
+        <script src="/static/webix/codebase/webix.js" type="text/javascript"  charset="utf-8"></script>
+
+        <style>@font-face{font-family: 'D2Coding';src: url(/static/D2Coding.woff) format('woff');}
+            body, table, div, p, h1, h2, h3, h4, h5, h6, pre {font-family:'D2Coding';}</style>
+    		
+        <script src="/view/common.js" type="text/javascript"  charset="utf-8"></script>
+        <script src="/view/pu1030.js" type="text/javascript"  charset="utf-8"></script>
+
+<body>
+<script>
+    webix.ready(function()
+    {   
+
+        var main_view =
+        {
+            type:"space",
+            cols:
+            [
+                {width:10},
+                {
+                    rows:
+                    [
+                        { view:"template", id:"ju_label", template:"<center><h1>매 매</h1></center>", height:60},
+                        { height:10},                        
+                        { view:"text", label:"구분", labelAlign:"right", id:"ju_gu", width:150 },
+                        { view:"text", label:"단축코드", labelAlign:"right", id:"ju_jong_code", width:150 },
+                        { view:"text", label:"종목명", labelAlign:"right", width:250, id:"ju_jong_name"},
+                        { height:20},
+                        { view:"text", label:"수량", labelAlign:"right", width:250, id:"ju_su", width:150 },
+                        {
+                            cols:
+                            [
+                                { view:"text", label:"가격", labelAlign:"right", id:"ju_ga", width:170, format:"1,111"  },
+                                { view:"checkbox", id:"ju_ga_gu", labelRight:"시장가", labelWidth:"20", value:'0'},
+                            ]
+                        },
+                        { view:"text", label:"금액", labelAlign:"right", width:250, id:"ju_tot_ga", width:170, format:"1,111"  },
+                        { height:20},
+                        { view:"text", label:"예약일자", labelAlign:"right", width:250, id:"ju_day", width:160 },
+                        { view:"text", label:"예약시간", labelAlign:"right", width:250, id:"ju_time", width:160 },
+                        { view:"text", label:"매매순번", labelAlign:"right", width:250, id:"ju_meme_sun", width:160 },
+                        
+                        {},
+                        { view:"button", align:"right", label: '주문', width:100, click:"go_meme" },
+                        { height:20}
+                    ]                
+                },
+                { width:10},
+                {
+                    rows:
+                    [
+                        { view:"datatable", id:"grid_hoga",  select:true, width:250,
+                            columns:
+                            [
+                                { id:"매도수량",	header:"매도", width:80},
+                                { id:"호가",	header:"호가", width:80,
+                                    format:webix.Number.numToStr({
+                                            groupDelimiter:",",
+                                            groupSize:3
+                                })},
+                                { id:"매수수량",	header:"매수", width:80},
+                            ],
+                        },
+                        { view:"text", label:"매도조건", labelAlign:"right", id:"ju_medo_jo"},
+                        { view:"textarea", id: "ju_medo_jo_ne", height:170},
+                    ]
+                },
+                {view:"datatable", id:"grid_ju", resizeColumn:true, autoConfig:true},
+            ]
+        };
+        
+        webix.ui(main_view);
+
+        $$("grid_hoga").attachEvent("onItemClick", function(id, e, node)
+        {
+            $$('ju_ga').setValue($$("grid_hoga").getItem($$("grid_hoga").getSelectedId()).호가);
+            $$("ju_tot_ga").setValue(parseInt($$("ju_ga").getValue()) * parseInt($$("ju_su").getValue()));                            
+        });          
+
+        $$("ju_su").attachEvent("onKeyPress", function(code, e)
+        {
+            if (code == 13)
+            {
+                $$("ju_tot_ga").setValue(parseInt($$("ju_ga").getValue()) * parseInt($$("ju_su").getValue()));                            
+            }
+        });          
+
+        $$("ju_ga").attachEvent("onKeyPress", function(code, e)
+        {
+            $$("ju_tot_ga").setValue(parseInt($$("ju_ga").getValue()) * parseInt($$("ju_su").getValue()));                            
+        });          
+
+        $$("ju_tot_ga").attachEvent("onKeyPress", function(code, e)
+        {            
+            if (code == 13)
+            {
+                $$("ju_su").setValue(parseInt(parseInt($$("ju_tot_ga").getValue()) / parseInt($$("ju_ga").getValue())));
+                $$("ju_tot_ga").setValue(parseInt($$("ju_ga").getValue()) * parseInt($$("ju_su").getValue()));                            
+            }            
+        });          
+
+        start_page();
+    });  
+
+</script>
+
+</body>
+</html>

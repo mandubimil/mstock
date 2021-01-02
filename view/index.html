@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<html>
+	<head>
+        <link rel="stylesheet" href="/static/webix/codebase/skins/webix.css" type="text/css" media="screen" charset="utf-8">
+        <script src="/static/webix/codebase/webix.js" type="text/javascript"  charset="utf-8"></script>
+
+        <style>@font-face{font-family: 'D2Coding';src: url(/static/D2Coding.woff) format('woff');}
+            body, table, div, p, h1, h2, h3, h4, h5, h6, pre {font-family:'D2Coding';}</style>
+        
+
+        <title>mandu stock login</title>		
+	</head>
+  
+<body>
+<script type="text/javascript" charset="utf-8">
+
+webix.skin.compact.barHeight=32;webix.skin.compact.tabbarHeight=28;webix.skin.compact.rowHeight=22;webix.skin.compact.listItemHeight=28;webix.skin.compact.inputHeight=28;webix.skin.compact.layoutMargin.wide=2;webix.skin.compact.layoutMargin.space=5;webix.skin.compact.layoutPadding.space=3;
+webix.skin.set('compact');
+
+
+webix.ready(function(){  
+    var main_view =
+                    {
+                        type:"space", rows:[
+                            {height:10},
+                            { type:"header", template:"얌얌10"},
+                            { align:"center", body:{ view:"text", label:"사용자", value:"mandu", width:300, id:"user"}},
+                            { align:"center", body:{ view:"text", label:"비번", value:"", type:'password', width:300, id:"passwd"}},
+                            { align:"center", body:{ view:"text", label:"기본창", value:"bc1010", width:300, id:"basic_window"}},
+                            { align:"center", body:
+                                { 
+                                    label:"서버", width:300, view:"richselect", id:'server_type', value:'demo',
+                                    options:
+                                    [ 
+                                        { id:'demo', value:"데모" }, 
+                                        { id:'hts', value:"리얼" },
+                                    ]
+                                },
+                            },
+                            
+                            {height:50},
+                            { align:"center", view:"button", label: '가자', click:"gogo_mstock", width:300 },
+                            {height:10},
+                        ]
+                    };
+
+  webix.ui(main_view);	
+  
+  $$("passwd").attachEvent("onKeyPress", function(code, e)
+  {
+    if (code === 13)
+        gogo_mstock();  
+  });  
+  
+  $$("passwd").focus();
+});
+
+
+
+function gogo_mstock(select_id)
+{
+	var send_json = {
+        "j_para":{ "서버타입":$$("server_type").getValue()},
+        "q_para":{ "아이디":$$("user").getValue(), "비밀번호":$$("passwd").getValue() }
+        };	
+
+	webix.ajax().headers({"Content-type":"application/json"}).post("/gogo/gogo", send_json, function(text)
+	{  
+		var jsd = JSON.parse(text);
+
+        if (jsd["data"][0]["결과"] == "PASS")
+        {
+            var status = "toolbar=no,directories=no,scrollbars=no,resizable=yes,status=no,menubar=no,width=400, height=500, top=0,left=0, location=no"    
+            //window.open('/view/'+$$("basic_window").getValue(), 'mstock', status);
+            window.open('/view/main00.html', 'mstock', status);
+        }
+        else
+        {
+            webix.message("who?");
+        }
+	});		
+}
+</script>
+
+</body>
+</html>
